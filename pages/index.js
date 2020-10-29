@@ -1,7 +1,32 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import { useState, useEffect } from 'react'
+import Joke from '../components/joke'
 
 export default function Home() {
+
+  const API_URL = 'http://api.icndb.com/jokes/random';
+  const [joke, setJoke] = useState('');
+  const [jokes, setJokes] = useState([]);
+  
+  function generateJoke() {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setJoke(data.value.joke));
+  }
+
+  useEffect(() => {
+    generateJoke();
+  }, [])
+
+  function save() {
+    setJokes([...jokes, joke]);
+  }
+
+  function clear() {
+    setJokes([]);
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -11,55 +36,24 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          This is a fancy joke generator!
         </h1>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <div className={styles.box}>
+          <h3>Here's your fresh joke!</h3>
+          <p dangerouslySetInnerHTML={{__html: joke}}/>
+          <button onClick={generateJoke}>Generate Joke</button>
+          <button onClick={save}>Save this Joke!</button>
+          <button onClick={clear}>Clear Jokes</button>
         </div>
-      </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+        <h3>Saved Jokes</h3>
+
+        {jokes.map((savedJoke)=> <Joke punchline={savedJoke} />)}
+
+
+        <p>Click <a href="http://api.icndb.com/jokes/random">here</a> for the api used.</p>
+      </main>
     </div>
   )
 }
